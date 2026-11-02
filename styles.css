@@ -1,0 +1,708 @@
+/* ==========================================================
+   WARNA — hologram emas dan amber, aksen merah untuk peringatan
+   ========================================================== */
+:root {
+    --hud-scale: 0.9;
+
+    --y-rgb: 255, 210, 90;
+    --y: rgb(var(--y-rgb));
+    --a-rgb: 255, 154, 46;
+    --a: rgb(var(--a-rgb));
+    --w: #fff3d6;
+
+    --red-rgb: 255, 59, 59;
+    --red: rgb(var(--red-rgb));
+
+    --green-rgb: 125, 255, 176;
+    --green: rgb(var(--green-rgb));
+
+    --font: "Bahnschrift", "Segoe UI", "Arial Narrow", Arial, sans-serif;
+
+    --chamfer: polygon(26px 0, calc(100% - 26px) 0, 100% 26px, 100% calc(100% - 26px), calc(100% - 26px) 100%, 26px 100%, 0 calc(100% - 26px), 0 26px);
+    --hex-clip: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* latar sepenuhnya transparan: yang tampil hanya elemen hologram */
+body {
+    background: transparent !important;
+    font-family: var(--font);
+    color: var(--w);
+}
+
+/* ---------- Posisi HUD ---------- */
+
+.hud {
+    position: fixed;
+    right: 24px;
+    bottom: 34px;
+    width: 540px;
+    height: 262px;
+    transform: scale(var(--hud-scale));
+    transform-origin: 100% 100%;
+}
+
+.hud.hidden { display: none; }
+
+.cluster {
+    position: relative;
+    width: 540px;
+    height: 262px;
+    animation: holo-flicker 9s linear infinite;
+}
+
+.cluster > *,
+.content > * {
+    position: absolute;
+}
+
+@keyframes holo-flicker {
+    0%, 90%, 100% { opacity: 1; }
+    91%           { opacity: 0.88; }
+    92%           { opacity: 1; }
+    95%           { opacity: 0.94; }
+    96%           { opacity: 1; }
+}
+
+.mini {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+/* ---------- Lapisan hologram ---------- */
+
+.glow {
+    left: 50px;
+    right: 50px;
+    bottom: -20px;
+    height: 22px;
+    background: radial-gradient(ellipse at 50% 0, rgba(255, 150, 40, 0.6), transparent 70%);
+    filter: blur(6px);
+    pointer-events: none;
+}
+
+.glass {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255, 170, 60, 0.07), rgba(255, 120, 40, 0.015));
+    clip-path: var(--chamfer);
+}
+
+.honey {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.9;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='41.6' viewBox='0 0 24 41.6'><path d='M12 0L24 6.9V20.8L12 27.7L0 20.8V6.9Z M12 27.7V41.6 M0 20.8V34.7L12 41.6 M24 20.8V34.7L12 41.6' fill='none' stroke='rgba(255,200,90,0.16)' stroke-width='1'/></svg>");
+    -webkit-mask: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 72%);
+            mask: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 72%);
+}
+
+.ln {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--y), var(--a), var(--y), transparent);
+    box-shadow: 0 0 12px var(--a);
+}
+.ln.t { left: 40px; right: 40px; top: 0; }
+.ln.b { left: 40px; right: 40px; bottom: 0; }
+
+.sd {
+    width: 2px;
+    background: linear-gradient(180deg, transparent, var(--y), transparent);
+    box-shadow: 0 0 10px var(--a);
+}
+.sd.l { left: 0; top: 30px; bottom: 30px; }
+.sd.r { right: 0; top: 30px; bottom: 30px; }
+
+/* garis merah yang berdenyut saat seatbelt belum dipakai */
+.al {
+    background: var(--red);
+    box-shadow: 0 0 14px var(--red);
+    opacity: 0;
+    pointer-events: none;
+}
+.al.t { left: 40px; right: 40px; top: 0; height: 2px; }
+.al.b { left: 40px; right: 40px; bottom: 0; height: 2px; }
+.al.l { left: 0; top: 30px; bottom: 30px; width: 2px; }
+.al.r { right: 0; top: 30px; bottom: 30px; width: 2px; }
+
+.hud.no-belt .al { animation: alert-pulse 1s ease-in-out infinite; }
+
+@keyframes alert-pulse {
+    0%, 100% { opacity: 0; }
+    50%      { opacity: 0.95; }
+}
+
+.scan {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    clip-path: var(--chamfer);
+    background: repeating-linear-gradient(0deg, rgba(var(--y-rgb), 0.06) 0 1px, transparent 1px 3px);
+}
+
+.scan::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 70px;
+    background: linear-gradient(180deg, transparent, rgba(255, 225, 150, 0.12), transparent);
+    animation: holo-sweep 6.5s linear infinite;
+}
+
+@keyframes holo-sweep {
+    from { transform: translateY(-80px); }
+    to   { transform: translateY(270px); }
+}
+
+/* ---------- Isi panel ---------- */
+
+.content {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition: opacity 0.7s ease, filter 0.7s ease;
+}
+
+.hud.engine-off .content { opacity: 0.55; }
+
+.hud.intro-on .content {
+    opacity: 0.14;
+    filter: blur(1.4px);
+    transition: opacity 0.4s ease, filter 0.4s ease;
+}
+
+/* hiasan atas */
+.orn {
+    left: 190px;
+    top: 14px;
+    width: 160px;
+    height: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.orn i {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--y-rgb), 0.8));
+}
+
+.orn i:last-child { background: linear-gradient(270deg, transparent, rgba(var(--y-rgb), 0.8)); }
+
+.orn b {
+    width: 6px;
+    height: 6px;
+    background: var(--y);
+    box-shadow: 0 0 8px var(--a);
+    transform: rotate(45deg);
+}
+
+/* ---------- RPM ---------- */
+
+.rpm-label {
+    left: 18px;
+    top: 10px;
+    width: 52px;
+    text-align: center;
+    color: var(--y);
+}
+
+.rcol {
+    left: 26px;
+    top: 30px;
+    width: 36px;
+    height: 196px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+}
+
+.rcol i {
+    display: block;
+    height: 6.5px;
+    background: rgba(var(--y-rgb), 0.12);
+    clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
+}
+
+.rcol i.lit {
+    background: var(--k);
+    box-shadow: 0 0 8px var(--k);
+}
+
+.hud.redline .rcol i.lit.hot {
+    animation: hot-flash 0.16s steps(1) infinite;
+}
+
+@keyframes hot-flash {
+    0%   { background: var(--k); }
+    50%  { background: #ffffff; }
+}
+
+.rpm-num {
+    left: 18px;
+    top: 232px;
+    width: 52px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--w);
+}
+
+/* ---------- Kecepatan ---------- */
+
+.speed-box {
+    left: 96px;
+    top: 28px;
+    width: 348px;
+    text-align: center;
+}
+
+.speed {
+    font-size: 118px;
+    line-height: 0.9;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(180deg, #ffffff 0%, #ffe9a8 38%, #ffb23a 72%, #ff7a2e 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 16px rgba(255, 150, 50, 0.75)) drop-shadow(-2px 0 0 rgba(255, 59, 59, 0.45)) drop-shadow(2px 0 0 rgba(255, 225, 120, 0.4));
+    animation: glitch 8s linear infinite;
+}
+
+@keyframes glitch {
+    0%, 96%, 100% { transform: translateX(0); }
+    97%           { transform: translateX(2px); }
+    98%           { transform: translateX(-2px); }
+}
+
+.unit {
+    margin-top: 2px;
+    font-size: 12px;
+    letter-spacing: 0.5em;
+    padding-left: 0.5em;
+    text-transform: uppercase;
+    color: var(--y);
+    text-shadow: 0 0 10px var(--a);
+}
+
+/* ---------- Gear (N sampai 6) ---------- */
+
+.gear-label {
+    left: 118px;
+    top: 156px;
+    width: 304px;
+    text-align: center;
+    color: var(--y);
+}
+
+.gears {
+    left: 118px;
+    top: 169px;
+    width: 304px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.gt {
+    width: 34px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(var(--y-rgb), 0.38);
+    clip-path: var(--hex-clip);
+    background: rgba(var(--y-rgb), 0.12);
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.gt.pass {
+    color: rgba(255, 230, 160, 0.9);
+    background: rgba(var(--y-rgb), 0.26);
+}
+
+.gt.on {
+    width: 48px;
+    height: 42px;
+    font-size: 24px;
+    font-style: italic;
+    color: #2a1400;
+    background: linear-gradient(180deg, #fff3d6, var(--y), var(--a));
+    filter: drop-shadow(0 0 10px var(--a));
+    animation: gear-pop 0.22s ease-out;
+}
+
+@keyframes gear-pop {
+    0%   { transform: scale(1.3); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- Ikon status (berlian) ---------- */
+
+.diamonds {
+    left: 0;
+    right: 0;
+    top: 222px;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+}
+
+.d {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    display: grid;
+    place-items: center;
+    color: rgba(255, 230, 160, 0.38);
+    border: 1.5px solid rgba(var(--y-rgb), 0.38);
+    background: rgba(var(--y-rgb), 0.05);
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.d svg {
+    width: 17px;
+    height: 17px;
+    transform: rotate(-45deg);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.d.on {
+    color: var(--y);
+    border-color: var(--y);
+    background: rgba(var(--y-rgb), 0.14);
+    box-shadow: 0 0 12px var(--a), inset 0 0 8px rgba(255, 170, 60, 0.3);
+}
+
+.d.ok {
+    color: var(--green);
+    border-color: var(--green);
+    background: rgba(var(--green-rgb), 0.1);
+    box-shadow: 0 0 12px var(--green), inset 0 0 8px rgba(var(--green-rgb), 0.25);
+}
+
+.d.high {
+    color: #ffffff;
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 0 14px #ffffff, inset 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.d.warn {
+    color: #ff9a9a;
+    border-color: rgba(var(--red-rgb), 0.7);
+    background: rgba(var(--red-rgb), 0.1);
+}
+
+.d.bad {
+    color: var(--red);
+    border-color: var(--red);
+    background: rgba(var(--red-rgb), 0.16);
+    box-shadow: 0 0 14px var(--red), inset 0 0 8px rgba(var(--red-rgb), 0.3);
+    animation: bad-blink 0.9s steps(1) infinite;
+}
+
+@keyframes bad-blink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.4; }
+}
+
+#headlights .beam-high { display: none; }
+#headlights.high .beam-high { display: inline; }
+#headlights.high .beam-low { display: none; }
+
+/* ---------- Fuel dan health (sel sarang tawon) ---------- */
+
+.cols {
+    left: 452px;
+    top: 30px;
+    display: flex;
+    gap: 16px;
+}
+
+.pc {
+    width: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: var(--y);
+}
+
+.pc .pi {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.pc .st {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+    height: 136px;
+}
+
+.pc .st i {
+    display: block;
+    width: 28px;
+    height: 14px;
+    clip-path: var(--hex-clip);
+    background: rgba(var(--y-rgb), 0.13);
+}
+
+.pc .st i.lit {
+    background: linear-gradient(180deg, #fff3d6, var(--y));
+    box-shadow: 0 0 8px var(--a);
+}
+
+.pc.h { color: var(--green); }
+.pc.h .st i.lit { background: linear-gradient(180deg, #eafff3, var(--green)); }
+
+.pc b {
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    color: var(--w);
+}
+
+.pc.low { color: var(--red); animation: low-blink 1s steps(1) infinite; }
+.pc.low .st i.lit { background: var(--red); }
+
+@keyframes low-blink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.55; }
+}
+
+/* ---------- Odometer ---------- */
+
+.odo-box {
+    right: 30px;
+    top: 244px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.odo-box em { font-style: normal; color: var(--y); }
+
+.odo-box b {
+    margin-left: 6px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    font-variant-numeric: tabular-nums;
+    color: var(--y);
+}
+
+/* ---------- Animasi pembuka: Welcome ---------- */
+
+.intro {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    clip-path: var(--chamfer);
+    background:
+        radial-gradient(ellipse at 50% 50%, rgba(40, 16, 0, 0.55), rgba(10, 4, 0, 0.3) 72%),
+        repeating-linear-gradient(0deg, rgba(var(--y-rgb), 0.05) 0 1px, transparent 1px 3px);
+}
+
+.hud.intro-on .intro {
+    opacity: 1;
+    transition: opacity 0.35s ease;
+}
+
+.rays {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 560px;
+    height: 560px;
+    margin: -280px 0 0 -280px;
+    opacity: 0;
+    background: repeating-conic-gradient(from 0deg, rgba(255, 190, 70, 0.26) 0 3deg, transparent 3deg 12deg);
+    -webkit-mask: radial-gradient(circle, #000 0, transparent 62%);
+            mask: radial-gradient(circle, #000 0, transparent 62%);
+}
+
+.hud.intro-on .rays {
+    animation: rays-in 1.4s ease-out forwards, rays-spin 18s linear infinite;
+}
+
+@keyframes rays-in {
+    to { opacity: 1; }
+}
+
+@keyframes rays-spin {
+    to { transform: rotate(360deg); }
+}
+
+.scanline {
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #fff3d6, transparent);
+    box-shadow: 0 0 18px var(--a);
+    opacity: 0;
+}
+
+.hud.intro-on .scanline {
+    animation: scan-down 1.7s ease-in-out 0.1s 1;
+}
+
+@keyframes scan-down {
+    0%   { transform: translateY(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(262px); opacity: 0; }
+}
+
+.intro-text {
+    position: relative;
+    text-align: center;
+}
+
+.welcome {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.7em;
+    padding-left: 0.7em;
+    color: var(--y);
+    text-shadow: 0 0 12px var(--a);
+    opacity: 0;
+}
+
+.hud.intro-on .welcome {
+    animation: welcome-in 1.4s ease-out 0.4s forwards;
+}
+
+@keyframes welcome-in {
+    from { opacity: 0; letter-spacing: 0.85em; }
+    to   { opacity: 1; letter-spacing: 0.7em; }
+}
+
+.owner {
+    margin-top: 6px;
+    font-size: 60px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.15;
+    padding: 0 8px;
+    white-space: nowrap;
+    opacity: 0;
+    background: linear-gradient(100deg, #ffb23a 0%, #ffe9a8 30%, #ffffff 44%, #ffd25a 58%, #ff8a2e 100%);
+    background-size: 260% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 16px rgba(255, 150, 50, 0.8)) drop-shadow(-2px 0 0 rgba(255, 59, 59, 0.4));
+}
+
+.hud.intro-on .owner {
+    animation:
+        owner-in 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.8s forwards,
+        shimmer 1.8s ease-in-out 1.4s 1 forwards;
+}
+
+@keyframes owner-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+    from { background-position: 100% 0; }
+    to   { background-position: 0% 0; }
+}
+
+.divider {
+    margin: 10px auto 0;
+    width: 300px;
+    height: 10px;
+    position: relative;
+}
+
+.divider i {
+    position: absolute;
+    top: 4px;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--y));
+    box-shadow: 0 0 10px var(--a);
+}
+
+.divider i:first-child { left: 0; }
+.divider i:last-child  { right: 0; transform: scaleX(-1); }
+
+.divider b {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    background: var(--y);
+    box-shadow: 0 0 12px var(--a);
+    transform: rotate(45deg) scale(0);
+}
+
+.hud.intro-on .divider i { animation: line-grow 1s ease-out 1.5s forwards; }
+.hud.intro-on .divider b { animation: diamond-in 0.5s ease-out 1.4s forwards; }
+
+@keyframes line-grow {
+    to { width: 128px; }
+}
+
+@keyframes diamond-in {
+    to { transform: rotate(45deg) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cluster, .speed, .scan::after, .d.bad, .pc.low, .hud.no-belt .al, .hud.redline .rcol i.lit.hot { animation: none; }
+}
